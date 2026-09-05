@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hamn-överblick</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Hamn-överblick</h1>
+    <p>Lastfartyg på väg mot svenska hamnar, grupperade på hur nära anlöpet ligger. AIS-data, uppdateras var 30:e sekund.</p>
+    <div id="status"></div>
+  </header>
+  <div id="collecting-banner" hidden>Insamlingen har nyss börjat – det kan ta en stund innan fler fartyg dyker upp.</div>
+  <div id="port-filters" class="port-filters"></div>
+  <main>
+    <div class="karta">
+      <svg id="karta" preserveAspectRatio="xMidYMid slice" role="img"
+           aria-label="Karta över fartyg på väg mot svenska hamnar">
+        <rect id="hav" x="0" y="0" fill="var(--sjo)"></rect>
+        <path id="land" fill-rule="evenodd"></path>
+        <g id="hamnrutor"></g>
+        <g id="fartygslager"></g>
+      </svg>
+    </div>
+
+    <div id="arrivals"></div>
+  </main>
+
+  <footer id="ansvar">
+    <p class="ansvar-kort">
+      <strong>Obekräftade uppgifter.</strong> Destination och ETA fylls i för hand av besättningen
+      och är ofta fel. Sidan får inte användas för navigation, säkerhet eller som underlag för
+      åtaganden. Fartygsdata via <a href="https://aisstream.io" rel="noopener">aisstream.io</a>.
+    </p>
+    <details>
+      <summary>Om datan och dess gränser</summary>
+      <ul>
+        <li><strong>Källan är fartygens egna AIS-sändningar.</strong> De tas emot via aisstream.io.
+          Sidan är fristående och har ingen koppling till hamnarna, Sjöfartsverket, rederierna
+          eller aisstream.io.</li>
+        <li><strong>Destination och ETA är fritext.</strong> Besättningen skriver dem för hand.
+          Fältet kan vara tomt, felstavat, kvar från förra resan eller ange ett datum som är
+          uppenbart fel. Ingenting här är bekräftat mot hamnens anlöpsplanering.</li>
+        <li><strong>Framförhållningen är högst ett par dygn.</strong> AIS-destinationen gäller den
+          resa fartyget är på just nu, så ett fartyg som ska hit om två veckor står som på väg till
+          Rotterdam eller Hamburg. Vid en mätning i september 2026 var den största framförhållningen
+          3,4 dygn.</li>
+        <li><strong>Listan är inte fullständig.</strong> Täckningen beror på var det finns
+          AIS-mottagare och på vad strömmen hinner leverera. Ett fartyg som saknas kan vara på väg
+          ändå.</li>
+        <li><strong>”Container” är en gissning.</strong> AIS-typkoden skiljer inte containerfartyg
+          från annan torrlast, så rederiet gissas ur fartygets namn. Både missar och felträffar
+          förekommer.</li>
+        <li><strong>Ingen garanti.</strong> Uppgifterna levereras i befintligt skick, utan garanti
+          för riktighet eller tillgänglighet, och utan ansvar för beslut som fattas utifrån dem.</li>
+      </ul>
+      <p class="ansvar-kallor">
+        Karta: <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a>-bidragsgivare.
+      </p>
+    </details>
+  </footer>
+
+  <script src="land.js"></script>
+  <script src="gruppering.js"></script>
+  <script src="karta.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

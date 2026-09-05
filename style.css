@@ -1,0 +1,323 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  flex: 0 0 auto;
+  padding: 0.75rem 1rem;
+  background: #0b3d5c;
+  color: white;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+header p {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+#status {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  opacity: 0.7;
+}
+
+.port-filters {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: #eef2f5;
+  border-bottom: 1px solid #d6dde2;
+}
+
+.port-filter-btn {
+  border: 1px solid #0b3d5c;
+  background: white;
+  color: #0b3d5c;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.port-filter-btn:hover {
+  background: #dceaf5;
+}
+
+.port-filter-btn.active {
+  background: #0b3d5c;
+  color: white;
+}
+
+#collecting-banner {
+  flex: 0 0 auto;
+  background: #fff3cd;
+  color: #664d03;
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+  text-align: center;
+  border-bottom: 1px solid #ffe69c;
+}
+
+/* Kartan till vänster, listan till höger, lika delar. Kartan har egen höjd
+   och rullar inte; listan rullar för sig, så man kan bläddra genom anlöpen
+   och hela tiden se var fartygen ligger. */
+main {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+
+.karta {
+  flex: 1 1 50%;
+  min-width: 320px;
+}
+
+#arrivals {
+  flex: 1 1 50%;
+  min-width: 340px;
+  overflow-y: auto;
+  background: #f5f7f9;
+  padding: 0.75rem 1rem 2rem;
+  border-left: 3px solid #0b3d5c;
+}
+
+/* Under den här bredden får spalterna inte plats bredvid varandra. Då
+   staplas de, med kartan överst som orientering och listan under. */
+@media (max-width: 1000px) {
+  main { flex-direction: column; }
+  .karta { flex: 0 0 45vh; min-height: 260px; }
+  #arrivals { flex: 1 1 auto; border-left: none; border-top: 3px solid #0b3d5c; }
+}
+
+.grupp { margin-bottom: 1.5rem; }
+
+.grupp h3 {
+  font-size: 0.95rem;
+  margin: 0 0 0.15rem;
+  color: #0b3d5c;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.grupp h3 .antal {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #5d6a72;
+  background: #dde4e9;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+}
+
+.grupptext {
+  margin: 0 0 0.4rem;
+  font-size: 0.78rem;
+  color: #5d6a72;
+}
+
+.grupp table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  background: white;
+}
+
+.grupp thead th {
+  background: #0b3d5c;
+  color: white;
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  font-weight: 600;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+.grupp tbody td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #e2e6ea;
+  vertical-align: top;
+}
+
+.grupp tbody tr { cursor: pointer; }
+.grupp tbody tr:hover { background: #eef4f9; }
+
+/* Markeringen matchar det markerade fartyget i kartan: samma orange, och en
+   stapel i radens kant så att rad och prick går att para ihop med ögat.
+   Stapeln ritas som inre skugga i stället för ram, så raden inte hoppar. */
+.grupp tbody tr.vald { background: #fdeadd; }
+.grupp tbody tr.vald td { border-bottom-color: #f2cbaa; }
+.grupp tbody tr.vald td:first-child {
+  box-shadow: inset 4px 0 0 #d94a12;
+  font-weight: 600;
+}
+.grupp tbody tr.vald:hover { background: #fbdfcb; }
+
+.bi { display: block; font-size: 0.75rem; color: #5d6a72; font-weight: 400; }
+.bi a { color: #0b3d5c; }
+
+.dest {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+}
+
+.tomt { color: #5d6a72; }
+
+/* Dämpad, alltid synlig hamnetikett (icke-interaktiv bakgrundsinfo) */
+.port-label {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0b3d5c;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.port-label::before {
+  display: none;
+}
+
+/* Alltid synlig namnetikett på kartan */
+.ship-label {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px 5px;
+}
+
+.ship-label::before {
+  display: none;
+}
+
+/* Detaljinfo som visas vid hover */
+.ship-info-tooltip {
+  background: white;
+  border: 1px solid #0b3d5c;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.ship-popup h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.ship-popup table {
+  font-size: 0.8rem;
+  border-collapse: collapse;
+}
+
+.ship-popup td {
+  padding: 1px 6px 1px 0;
+  vertical-align: top;
+}
+
+.ship-popup td:first-child {
+  color: #555;
+  white-space: nowrap;
+}
+
+.unconfirmed {
+  color: #999;
+  font-style: italic;
+  font-size: 0.8em;
+}
+
+.badge-container {
+  display: inline-block;
+  background: #1a7f37;
+  color: white;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: 6px;
+}
+
+/* Ansvarsfriskrivningen. Den korta raden står alltid framme — den som läser
+   listan ska inte behöva öppna något för att veta hur säkra uppgifterna är.
+   Det längre resonemanget ligger bakom en expander, så att det inte äter
+   höjd från kartan och listan. */
+#ansvar {
+  flex: 0 0 auto;
+  background: #f4f6f8;
+  border-top: 1px solid #d6dde2;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: #444;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+#ansvar p {
+  margin: 0;
+}
+
+#ansvar a {
+  color: #0b3d5c;
+}
+
+.ansvar-kort strong {
+  color: #8a4b00;
+}
+
+#ansvar summary {
+  margin-top: 0.35rem;
+  cursor: pointer;
+  color: #0b3d5c;
+}
+
+#ansvar ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  line-height: 1.45;
+}
+
+#ansvar li {
+  margin-bottom: 0.35rem;
+}
+
+.ansvar-kallor {
+  margin-top: 0.5rem;
+  color: #666;
+}
+
+/* ---- Kartan i SVG ----------------------------------------------------
+   Ersätts av den riktiga paletten i Task 7. */
+:root {
+  --sjo: #dde9f0; --land: #f9f8f4; --hairline: #ccd9e1; --panel: #fff;
+  --markerad: #f3a15c; --ink: #123448;
+  --sans: system-ui, sans-serif; --mono: ui-monospace, monospace;
+  --hamn-goteborg: #c9552b; --hamn-helsingborg: #1d7f9c; --hamn-gavle: #7b5aa6;
+  --hamn-norvik: #2f7d51; --hamn-norrkoping: #a8367a; --hamn-okand: #8c9aa5;
+}
+
+.karta { position: relative; overflow: hidden; height: 100%; }
+.karta svg { width: 100%; height: 100%; display: block; background: var(--sjo); }
+
+#land { fill: var(--land); stroke: var(--hairline); stroke-width: .8; stroke-linejoin: round; }
+.hamnruta { fill: none; opacity: .8; }
+.hamnnamn { font: 500 10px/1 var(--sans); letter-spacing: .06em; text-transform: uppercase; }
+
+.fartyg { cursor: pointer; }
+.fartyg polygon, .fartyg circle { stroke: var(--panel); }
+.fartyg.vald polygon, .fartyg.vald circle { stroke: var(--markerad); stroke-width: 2.5; }
+.fartyg text { paint-order: stroke; stroke: var(--sjo); stroke-linejoin: round; }
+.etikett-namn { font-family: var(--mono); font-weight: 500; fill: var(--ink); }
+.etikett-hamn { font-family: var(--sans); font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
