@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Färjor — Hamn-överblick</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="kolumn filter">
+      <nav class="vyval">
+        <a href="index.html">Last</a>
+        <a href="farjor.html" class="aktiv">Färjor</a>
+      </nav>
+
+      <div class="status">
+        <span class="status-antal" id="status-antal"></span>
+        <span class="status-alder" id="status-alder"></span>
+      </div>
+
+      <div id="collecting-banner" class="banner" hidden>Insamlingen har nyss börjat – det kan ta en stund innan fler fartyg dyker upp.</div>
+
+      <section>
+        <h2 class="grupprubrik">Hamnar</h2>
+        <div id="hamnfilter"></div>
+      </section>
+
+      <section>
+        <h2 class="grupprubrik">Rederier</h2>
+        <div id="rederifilter"></div>
+        <p class="notis" id="rederinotis"></p>
+      </section>
+
+      <div class="botten">
+        <div class="temaval" id="temaval">
+          <button type="button" data-tema="dark" aria-pressed="true">Mörkt</button>
+          <button type="button" data-tema="light" aria-pressed="false">Ljust</button>
+        </div>
+
+        <details class="ansvar">
+          <summary>Om datan och dess gränser</summary>
+          <p class="ansvar-kort">
+            <strong>Obekräftade uppgifter.</strong> Destination och ETA fylls i för hand av besättningen
+            och är ofta fel. Sidan får inte användas för navigation, säkerhet eller som underlag för
+            åtaganden. Fartygsdata via <a href="https://aisstream.io" rel="noopener">aisstream.io</a>.
+          </p>
+      <ul>
+        <li><strong>Urvalet är passagerarfartyg över hundra meter.</strong> AIS har ingen kod för
+          färja: en ro-pax rapporterar passagerartyp, medan ren ro-ro-frakt rapporterar last och
+          inte går att skilja från styckegods. Hundrametersgränsen skiljer internationell
+          färjetrafik från skärgårds- och sightseeingbåtar. En liten ö-färja med passagerare är
+          färjetrafik, den är bara inte den trafik den här sidan handlar om.</li>
+        <li><strong>Kryssningsfartyg följer med.</strong> De rapporterar samma typkod som färjor
+          och är större än hundra meter, så de syns här.</li>
+        <li><strong>Destination och ETA är fritext.</strong> Besättningen skriver dem för hand, och
+          fältet bär ofta hela rutten — "SWINOUJSCIE &lt;&gt; YSTAD" står likadant åt båda hållen.</li>
+        <li><strong>Avgående fartyg räknas bort.</strong> Fartyg som gör fart med kursen tydligt
+          bort från hamnen utelämnas. Ligger fartyget stilla går riktningen inte att avgöra, och
+          då visas det.</li>
+        <li><strong>Vissa ankomsttider är uppskattade.</strong> Är fartygets egen ETA obrukbar
+          räknas en tid fram ur position och fart och märks med ett tilde (~). Den räknar
+          fågelvägen, och en rutt som går runt land tar längre tid än så.</li>
+        <li><strong>Horisonten är ett dygn.</strong> Fartyg som ankommer senare än så, eller som
+          saknar användbar tid, visas inte här.</li>
+        <li><strong>Listan är inte fullständig.</strong> Täckningen beror på var det finns
+          AIS-mottagare och på vad strömmen hinner leverera.</li>
+        <li><strong>Ingen garanti.</strong> Uppgifterna levereras i befintligt skick, utan garanti
+          för riktighet eller tillgänglighet, och utan ansvar för beslut som fattas utifrån dem.</li>
+      </ul>
+          <p class="ansvar-kallor">
+            Karta: <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a>, allmän egendom.
+          </p>
+        </details>
+      </div>
+    </aside>
+
+    <main class="kolumn mitten">
+      <div class="karta">
+        <div class="sokrad">
+          <input id="sok" type="search" placeholder="Sök färja eller IMO" autocomplete="off" spellcheck="false">
+        </div>
+        <svg id="karta" preserveAspectRatio="xMidYMid slice" role="img"
+             aria-label="Karta över fartyg på väg mot svenska hamnar">
+          <rect id="hav" x="0" y="0" fill="var(--sjo)"></rect>
+          <path id="land" fill-rule="evenodd"></path>
+          <g id="hamnrutor"></g>
+          <g id="fartygslager"></g>
+        </svg>
+        <button type="button" id="aterstall" hidden>Återställ utsnittet</button>
+      </div>
+    </main>
+
+    <section class="kolumn lista" id="arrivals"></section>
+  </div>
+
+  <script src="land.js"></script>
+  <script src="gruppering.js"></script>
+  <script src="tidsband.js"></script>
+  <script src="filter.js"></script>
+  <script src="karta.js"></script>
+  <script>
+    // Vad som skiljer den här vyn från lastvyn. Funktionerna anropas först
+    // efter att alla skript laddats, så de får referera till gruppering.js.
+    // Färjevyn: en annan adress, timband i stället för dygn, och tidsbandet
+    // under fartygsnamnet i stället för hamnen. Färgen bär hamn i båda vyerna
+    // och förklaras av hamnfiltret.
+    const VY = {
+      underlag: 'underlag-farjor.json',
+      gruppera: (fartyg, nu) => delaITidsband(fartyg, nu),
+      färg: (f) => HAMNFARG(f.arrivingPort),
+      etikettRad2: (f) => bandRubrik(f, Date.now()),
+      enhet: 'färjor',
+      tomText: 'Ingen färja med ankomst inom ett dygn.',
+    };
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
