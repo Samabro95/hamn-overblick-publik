@@ -1,0 +1,433 @@
+/* Mörkt är utgångsläget — nattsjökortet är sidans normala ansikte.
+   Ljust finns kvar som ett val och skriver om samma variabler. Sidan följer
+   alltså inte prefers-color-scheme; valet ligger hos besökaren. */
+:root {
+  --ink: #e2eef5;
+  --ink-svag: #8ba4b6;
+  --accent: #6fb6de;
+  --papper: #08131a;
+  --panel: #0f1f2a;
+  --sjo: #0c2130;
+  --land: #1d2f3a;
+  --hairline: #263f4f;
+  --hairline-svag: #182c38;
+  --markerad: #f0913c;
+  --markerad-yta: #22303c;
+  --varning: #f2b467;
+  --varning-yta: #2b1d10;
+  --kluster-yta: #020a10;
+  --kluster-text: #e2eef5;
+
+  /* En färg per bevakad hamn, samma tabell i båda vyerna. De sex första är
+     lastvyns beprövade palett; resten är färjehamnar. Ordningen är geografisk
+     och inte estetisk — se karta.js för varför två färger får likna varandra
+     så länge hamnarna ligger långt isär. */
+  --hamn-goteborg: #ff8a5c;
+  --hamn-helsingborg: #45bfe2;
+  --hamn-gavle: #b294e8;
+  --hamn-nynashamn: #4ec98a;
+  --hamn-stockholm: #e8c65c;
+  --hamn-norrkoping: #ef7ab9;
+  --hamn-malmo: #ff7a7a;
+  --hamn-trelleborg: #a9d95c;
+  --hamn-ystad: #e08ae0;
+  --hamn-karlshamn: #6fa8ff;
+  --hamn-karlskrona: #d3a06f;
+  --hamn-kapellskar: #9c9cf0;
+  --hamn-stromstad: #3ec9c0;
+  --hamn-umea: #f0a03c;
+  --hamn-okand: #7c8f9c;
+
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+:root[data-theme="light"] {
+  --ink: #0d2d40;
+  --ink-svag: #5b7789;
+  --accent: #0d3a55;
+  --papper: #e9f0f4;
+  --panel: #fbfdfe;
+  --sjo: #cbdfeb;
+  --land: #f6f2e8;
+  --hairline: #b6c9d6;
+  --hairline-svag: #dae6ed;
+  --markerad: #d4711f;
+  --markerad-yta: #fdf0e2;
+  --varning: #97500a;
+  --varning-yta: #fbeedd;
+  --kluster-yta: #0d2d40;
+  --kluster-text: #ffffff;
+
+  --hamn-goteborg: #c04a20;
+  --hamn-helsingborg: #10708f;
+  --hamn-gavle: #6f4ea3;
+  --hamn-nynashamn: #1f7247;
+  --hamn-stockholm: #8a6a10;
+  --hamn-norrkoping: #9c2a6e;
+  --hamn-malmo: #b23636;
+  --hamn-trelleborg: #5b7a12;
+  --hamn-ystad: #8c3a95;
+  --hamn-karlshamn: #1f5bb5;
+  --hamn-karlskrona: #8a5a2b;
+  --hamn-kapellskar: #4a4fb0;
+  --hamn-stromstad: #12716c;
+  --hamn-umea: #a35a08;
+  --hamn-okand: #7d8f9c;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: var(--papper);
+  color: var(--ink);
+  font: 400 14px/1.45 var(--sans);
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr) minmax(300px, 28%);
+  height: 100vh;
+}
+
+.kolumn { min-width: 0; overflow-y: auto; overflow-x: hidden; }
+
+/* ---- Vänster: status och filter --------------------------------------- */
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 14px 16px 18px;
+  background: var(--panel);
+  border-right: 1px solid var(--hairline);
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--hairline-svag);
+}
+
+.status-antal { font: 500 13px/1.2 var(--sans); }
+
+.status-alder {
+  font: 400 12px/1.2 var(--mono);
+  color: var(--ink-svag);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-alder.gammal { color: var(--varning); }
+
+.banner {
+  padding: 8px 10px;
+  background: var(--varning-yta);
+  border-left: 2px solid var(--varning);
+  color: var(--varning);
+  font-size: 12px;
+}
+
+.grupprubrik {
+  margin: 0 0 8px;
+  font: 600 10px/1 var(--sans);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-svag);
+}
+
+.notis { margin: 6px 0 0; font-size: 11.5px; line-height: 1.4; color: var(--ink-svag); }
+
+.botten {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline-svag);
+}
+
+.temaval { display: flex; }
+
+.temaval button {
+  flex: 1;
+  padding: 5px 0;
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--ink-svag);
+  font: 500 10px/1.4 var(--sans);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.temaval button:first-child { border-radius: 3px 0 0 3px; }
+.temaval button:last-child { border-radius: 0 3px 3px 0; border-left: 0; }
+.temaval button[aria-pressed="true"] { background: var(--accent); color: var(--panel); border-color: var(--accent); }
+
+.ansvar summary { cursor: pointer; font-size: 12px; color: var(--ink-svag); }
+.ansvar ul { margin: 8px 0 0; padding-left: 16px; }
+.ansvar li, .ansvar p { font-size: 11.5px; line-height: 1.5; color: var(--ink-svag); }
+.ansvar strong { color: var(--ink); }
+.ansvar a { color: var(--accent); }
+
+/* ---- Mitten: sök och karta -------------------------------------------- */
+
+.mitten { background: var(--papper); overflow: hidden; }
+
+.karta { position: relative; overflow: hidden; height: 100%; cursor: grab; }
+.karta svg { width: 100%; height: 100%; display: block; background: var(--sjo); touch-action: none; }
+
+.sokrad {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: min(300px, calc(100% - 32px));
+}
+
+.sokrad input {
+  width: 100%;
+  padding: 7px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--panel);
+  color: var(--ink);
+  font: 400 12.5px/1.2 var(--sans);
+}
+
+.sokrad input::placeholder { color: var(--ink-svag); }
+.sokrad input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+#aterstall {
+  position: absolute;
+  top: 18px; right: 14px;
+  z-index: 2;
+  padding: 6px 11px;
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--panel);
+  color: var(--ink);
+  font: 500 11px/1.2 var(--sans);
+  cursor: pointer;
+}
+
+#aterstall:hover { border-color: var(--accent); color: var(--accent); }
+
+#land { fill: var(--land); stroke: var(--hairline); stroke-width: .8; stroke-linejoin: round; }
+.hamnruta { fill: none; opacity: .8; }
+.hamnnamn { font: 500 10px/1 var(--sans); letter-spacing: .06em; text-transform: uppercase; }
+
+.fartyg { cursor: pointer; }
+.fartyg polygon, .fartyg circle { stroke: var(--panel); }
+.fartyg.vald polygon, .fartyg.vald circle { stroke: var(--markerad); }
+
+/* Är något markerat tonas allt annat ned. Den stora pilen ensam räcker inte
+   när kartan är full av likadana ikoner — det är kontrasten mot omgivningen
+   som gör att blicken hittar dit. */
+#fartygslager.har-val .fartyg:not(.vald) { opacity: .28; }
+#fartygslager.har-val .fartyg:not(.vald) text { opacity: .5; }
+.fartyg text { paint-order: stroke; stroke: var(--sjo); stroke-linejoin: round; }
+.etikett-namn { font-family: var(--mono); font-weight: 500; fill: var(--ink); }
+.etikett-hamn { font-family: var(--sans); font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
+
+/* ---- Höger: ankomstlistan --------------------------------------------- */
+
+.lista { background: var(--panel); border-left: 1px solid var(--hairline); padding-bottom: 24px; }
+
+.listgrupp { border-bottom: 1px solid var(--hairline); }
+
+.listgrupp > h2 {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px 9px;
+  background: var(--papper);
+  border-top: 2px solid var(--accent);
+  border-bottom: 1px solid var(--hairline);
+  font: 600 12px/1.3 var(--sans);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.listgrupp > h2 .antal {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.rad {
+  display: grid;
+  gap: 2px;
+  padding: 9px 14px 10px 11px;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid var(--hairline-svag);
+  cursor: pointer;
+}
+
+.rad:hover { background: var(--hairline-svag); }
+
+/* Kartmarkören bär ingen information utöver färg och riktning, så den valda
+   raden måste synas ordentligt och bära allt. */
+.rad.vald {
+  background: var(--markerad-yta);
+  border-left-width: 4px;
+  border-left-color: var(--markerad);
+  box-shadow: inset 0 0 0 1px var(--markerad);
+}
+
+.rad.vald .rad-namn { font-weight: 600; font-size: 14px; }
+
+.rad-namn { font: 500 13px/1.25 var(--sans); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Radens enda länk, och den enda vägen vidare till ett annat fartygsregister.
+   Låg den i --ink-svag med en hårfin ram under smälte den in i metaraden
+   bredvid, som är samma grå och samma teckensnitt — den lästes inte som
+   klickbar. Accentfärg och en riktig understrykning, alltså. */
+.rad-imo {
+  justify-self: start;
+  font: 500 11px/1.3 var(--mono);
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rad-imo:hover,
+.rad-imo:focus-visible { color: var(--ink); text-decoration-thickness: 2px; }
+.rad-hamn { font-size: 12px; }
+.rad-meta { font: 400 11.5px/1.3 var(--mono); color: var(--ink-svag); font-variant-numeric: tabular-nums; }
+.osaker { color: var(--ink-svag); font-style: italic; }
+
+.detalj {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hairline);
+  font: 400 11.5px/1.45 var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.detalj dt {
+  color: var(--ink-svag);
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  align-self: center;
+}
+
+.detalj dd { margin: 0; overflow-wrap: anywhere; }
+.tomt { padding: 24px 14px; color: var(--ink-svag); font-size: 13px; }
+
+@media (max-width: 900px) {
+  body { height: auto; }
+  .app { grid-template-columns: 1fr; height: auto; }
+  .kolumn { overflow: visible; }
+  .filter { border-right: none; border-bottom: 1px solid var(--hairline); }
+  .karta { height: 60vh; }
+  .lista { border-left: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+.kryss { display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 4px; margin-left: -4px; border-radius: 3px; cursor: pointer; user-select: none; }
+.kryss:hover { background: var(--hairline-svag); }
+.kryss input { margin: 0; accent-color: var(--accent); }
+.kryss .prick { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.kryss .etikett { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.kryss .antal { font: 400 12px/1 var(--mono); color: var(--ink-svag); font-variant-numeric: tabular-nums; }
+.kryss.tom .etikett { color: var(--ink-svag); }
+
+/* ---- Kluster ---------------------------------------------------------- */
+
+/* Ytan är mörkare än både hav och land i mörkt tema, och mörk mot ett ljust
+   sjökort i det ljusa — så att klustret bryter mot bakgrunden oavsett var det
+   hamnar. Ringens bågar bär hamnfärgerna och gör resten av kontrasten. */
+.klusteryta { fill: var(--kluster-yta); }
+.klusterbage { fill: none; }
+.klusterantal { font-family: var(--mono); font-weight: 500; fill: var(--kluster-text); }
+.kluster { cursor: pointer; }
+.kluster:hover .klusteryta { fill: var(--markerad); }
+
+.klusterlista {
+  position: absolute;
+  z-index: 3;
+  min-width: 210px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 5px;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, .35);
+}
+
+.klusterlista h2 {
+  margin: 2px 6px 6px;
+  font: 600 10px/1.4 var(--sans);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-svag);
+}
+
+.klusterrad {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink);
+  font: 400 12px/1.3 var(--sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.klusterrad:hover { background: var(--hairline-svag); }
+.klusterrad .prick { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.klusternamn { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.klustereta { font: 400 11px/1.3 var(--mono); color: var(--ink-svag); font-variant-numeric: tabular-nums; }
+
+/* Uppskattad tid, inte fartygets egen uppgift. Skillnaden ska synas i listan
+   utan att man öppnar raden. */
+.eta-uppskattad { color: var(--varning); }
+
+/* Navigering mellan lastvyn och färjevyn. Två sidor, inget delat tillstånd —
+   temavalet ligger i localStorage och följer med ändå. */
+.vyval { display: flex; gap: 2px; }
+
+.vyval a {
+  flex: 1;
+  padding: 6px 0;
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink-svag);
+  font: 600 11px/1.3 var(--sans);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+}
+
+.vyval a:hover { color: var(--ink); border-color: var(--accent); }
+.vyval a.aktiv { background: var(--accent); color: var(--panel); border-color: var(--accent); }

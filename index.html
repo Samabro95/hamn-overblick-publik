@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hamn-överblick</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="kolumn filter">
+      <nav class="vyval">
+        <a href="index.html" class="aktiv">Last</a>
+        <a href="farjor.html">Färjor</a>
+      </nav>
+
+      <div class="status">
+        <span class="status-antal" id="status-antal"></span>
+        <span class="status-alder" id="status-alder"></span>
+      </div>
+
+      <div id="collecting-banner" class="banner" hidden>Insamlingen har nyss börjat – det kan ta en stund innan fler fartyg dyker upp.</div>
+
+      <section>
+        <h2 class="grupprubrik">Hamnar</h2>
+        <div id="hamnfilter"></div>
+      </section>
+
+      <section>
+        <h2 class="grupprubrik">Rederier</h2>
+        <div id="rederifilter"></div>
+        <p class="notis" id="rederinotis"></p>
+      </section>
+
+      <div class="botten">
+        <div class="temaval" id="temaval">
+          <button type="button" data-tema="dark" aria-pressed="true">Mörkt</button>
+          <button type="button" data-tema="light" aria-pressed="false">Ljust</button>
+        </div>
+
+        <details class="ansvar">
+          <summary>Om datan och dess gränser</summary>
+          <p class="ansvar-kort">
+            <strong>Obekräftade uppgifter.</strong> Destination och ETA fylls i för hand av besättningen
+            och är ofta fel. Sidan får inte användas för navigation, säkerhet eller som underlag för
+            åtaganden. Fartygsdata via <a href="https://aisstream.io" rel="noopener">aisstream.io</a>.
+          </p>
+      <ul>
+        <li><strong>Källan är fartygens egna AIS-sändningar.</strong> De tas emot via aisstream.io.
+          Sidan är fristående och har ingen koppling till hamnarna, Sjöfartsverket, rederierna
+          eller aisstream.io.</li>
+        <li><strong>Destination och ETA är fritext.</strong> Besättningen skriver dem för hand.
+          Fältet kan vara tomt, felstavat, kvar från förra resan eller ange ett datum som är
+          uppenbart fel. Ingenting här är bekräftat mot hamnens anlöpsplanering.</li>
+        <li><strong>Framförhållningen är högst ett par dygn.</strong> AIS-destinationen gäller den
+          resa fartyget är på just nu, så ett fartyg som ska hit om två veckor står som på väg till
+          Rotterdam eller Hamburg. Vid en mätning i september 2026 var den största framförhållningen
+          3,4 dygn.</li>
+        <li><strong>Avgående fartyg räknas bort.</strong> Destinationsfältet säger vilken hamn,
+          inte åt vilket håll — ett fartyg som just lämnat Göteborg kan stå kvar med Göteborg som
+          destination. Fartyg som gör fart och har kursen tydligt bort från hamnen utelämnas
+          därför. Ligger fartyget stilla går riktningen inte att avgöra, och då visas det.</li>
+        <li><strong>Vissa ankomsttider är uppskattade.</strong> Är fartygets egen ETA obrukbar —
+          tom eller från en annan månad — räknas en tid fram ur position och fart och märks med
+          ett tilde (~). Den är vår gissning, inte fartygets uppgift, och räknar fågelvägen: en
+          rutt som går runt land tar längre tid än så.</li>
+        <li><strong>Orimliga ETA visas inte.</strong> Ett fartyg vars ankomsttid passerade för
+          mer än fem dygn sedan, eller ligger mer än två veckor fram, är nästan alltid ett glömt
+          fält snarare än verklig trafik — AIS bär inget årtal, så ett gammalt datum kan gissas
+          till nästa år. De fartygen utelämnas ur listan och kartan, men finns kvar i underlaget.</li>
+        <li><strong>Listan är inte fullständig.</strong> Täckningen beror på var det finns
+          AIS-mottagare och på vad strömmen hinner leverera. Ett fartyg som saknas kan vara på väg
+          ändå.</li>
+        <li><strong>”Container” är en gissning.</strong> AIS-typkoden skiljer inte containerfartyg
+          från annan torrlast, så rederiet gissas ur fartygets namn. Både missar och felträffar
+          förekommer.</li>
+        <li><strong>Ingen garanti.</strong> Uppgifterna levereras i befintligt skick, utan garanti
+          för riktighet eller tillgänglighet, och utan ansvar för beslut som fattas utifrån dem.</li>
+      </ul>
+          <p class="ansvar-kallor">
+            Karta: <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a>, allmän egendom.
+          </p>
+        </details>
+      </div>
+    </aside>
+
+    <main class="kolumn mitten">
+      <div class="karta">
+        <div class="sokrad">
+          <input id="sok" type="search" placeholder="Sök fartyg eller IMO" autocomplete="off" spellcheck="false">
+        </div>
+        <svg id="karta" preserveAspectRatio="xMidYMid slice" role="img"
+             aria-label="Karta över fartyg på väg mot svenska hamnar">
+          <rect id="hav" x="0" y="0" fill="var(--sjo)"></rect>
+          <path id="land" fill-rule="evenodd"></path>
+          <g id="hamnrutor"></g>
+          <g id="fartygslager"></g>
+        </svg>
+        <button type="button" id="aterstall" hidden>Återställ utsnittet</button>
+      </div>
+    </main>
+
+    <section class="kolumn lista" id="arrivals"></section>
+  </div>
+
+  <script src="land.js"></script>
+  <script src="gruppering.js"></script>
+  <script src="tidsband.js"></script>
+  <script src="filter.js"></script>
+  <script src="karta.js"></script>
+  <script>
+    // Vad som skiljer den här vyn från färjevyn. Funktionerna anropas först
+    // efter att alla skript laddats, så de får referera till gruppering.js.
+    const VY = {
+      underlag: 'underlag.json',
+      gruppera: (fartyg, nu) => delaIGrupper(fartyg, nu),
+      färg: (f) => HAMNFARG(f.arrivingPort),
+      enhet: 'lastfartyg',
+      etikettRad2: (f) => f.arrivingPort || 'Ej bekräftat',
+      tomText: 'Inga fartyg hittade just nu.',
+    };
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
